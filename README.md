@@ -7,6 +7,7 @@ This repository demonstrates a simple Node.js Todo application that uses Postgre
 - **PostgreSQL Integration:** Connects to a PostgreSQL database for data storage.
 - **Automated Migrations:** Uses `node-pg-migrate` for managing schema changes.
 - **Ephemeral Database Branching:** Automatically creates a temporary database branch for each pull request using Neon. Once the pull request is closed, the temporary branch is deleted.
+- **Main Database Updates:** After merging into the main branch, a workflow updates your main database schema. This workflow requires manual approval before deployment.
 - **Simple Todo Management:** Basic CRUD operations for managing todo items.
 
 ## Prerequisites
@@ -76,6 +77,27 @@ This project leverages GitHub Actions and Neon to automate database branching:
      - `title` (varchar)
      - `completed` (boolean)
      - `created_at` (timestamp) (added later through pull request)
+
+## Main Database Schema Update Workflow
+After a pull request is merged into the `postgresSQL` branch, a separate GitHub Actions workflow updates the main database schema. This workflow requires manual approval before running the migrations to ensure that the changes are verified before being deployed to production.
+
+- ### How It Works:
+   -  The workflow triggers on any push to the postgresSQL branch.
+   -  It pauses at the environment approval step. You must approve the deployment in the GitHub repository's Environments settings.
+   - Once approved, the workflow checks out the repository, installs dependencies, and runs the migration command on the main database using the connection URL stored in the Github Actions secret.
+
+- ### What You Need to Do:
+1. Configure the Production Environment:
+   -  Go to your repository’s Settings > Environments.
+   -  Create an environment named production.
+   -  In the environment protection rules, add yourself (or the designated reviewer) as a required reviewer.
+
+2. Configure Secrets:
+Ensure your repository has a secret with your main PostgreSQL connection URL.
+
+3. Merge and Approve:
+When a pull request is merged into postgresSQL, the workflow triggers.
+Approve the deployment manually when prompted in the GitHub Actions tab.
 
 ## Running the Application
 
