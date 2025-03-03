@@ -18,10 +18,9 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install dependencies
-        uses: npm install
+        run: npm install
       
       - name: Run Migrations
         run: npm install && npm run migrate:down npm run migrate:up
         env:
-          # to use pooled connection
           DATABASE_URL: "${{ secrets.DATABASE_URL }}"
