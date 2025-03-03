@@ -1,0 +1,27 @@
+name: Update main Database Schema
+
+on:
+  push:
+    branches:
+      - postgresSQL
+
+jobs:
+  migrate:
+    name: Migrate DB changes to Production
+    runs-on: ubuntu-latest
+
+    environment:
+      name: Production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        uses: npm install
+      
+      - name: Run Migrations
+        run: npm install && npm run migrate:down npm run migrate:up
+        env:
+          # to use pooled connection
+          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
