@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Run Migrations
-        run: npm install && npm run migrate:down && npm run migrate:up
+        run: npm install && npm run migrate:up
         env:
           # to use pooled connection
           DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
@@ -67,6 +67,24 @@ jobs:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
           api_key: ${{ secrets.NEON_API_KEY }}
+
+
+  trigger_main_migration:
+    name: Trigger Main migration
+    needs: create_neon_branch
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Main DB Migration workflow
+        uses: ./.github/workflows/db_update.yaml
+        with:
+          run_migration: true
+
+
+
+
+
+
 
 # Following the step above, which runs database migrations, you may want to check
 # for schema changes in your database. We recommend using the following action to
